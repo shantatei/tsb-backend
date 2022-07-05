@@ -67,6 +67,7 @@ Route::group([
     Route::post('logout','AuthController@logout');
     Route::get('profile','AuthController@profile');
     Route::post('refresh','AuthController@refresh');
+    Route::delete('deleteUser','AuthController@deleteUser');
     Route::get('users','AuthController@users');
 });
 

@@ -91,6 +91,17 @@ class AuthController extends Controller
         return $this->respondWithToken($this->guard()->refresh());
     }
 
+    //Delete Account
+    public function deleteUser(){
+
+        $currentuser = $this->guard()->user();
+        $this->guard()->user()->delete();
+
+        return response()->json([
+            'message'=>'User Account Deleted successfully',
+            'user'=> $currentuser
+        ]);
+    }
 
     //JWT RESPOND WITH TOKEN
     protected function respondWithToken($token)
