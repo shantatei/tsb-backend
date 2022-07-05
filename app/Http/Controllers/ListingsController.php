@@ -42,6 +42,20 @@ class ListingsController extends Controller
         return $listing;
     }
 
+    public function updateListing(Request $request){
+
+        $listing = listing::where('user_id', $request->input('user_id'));
+        $listing = listing::find($request->id);
+        $listing->price = $request->input('price');
+        $listing->quantity = $request->input('quantity');
+        $listing->description = $request->input('description');
+
+        if ($listing->save()) {
+            return $listing;
+        }
+
+    }
+
     public function deleteListing(Request $request){
         $listing =listing::find($request->id);
 

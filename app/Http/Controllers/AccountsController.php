@@ -24,6 +24,8 @@ class AccountsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+     //Register Account Function
     public function register(Request $request)
     {
         $account = account::find($request->input('email'));

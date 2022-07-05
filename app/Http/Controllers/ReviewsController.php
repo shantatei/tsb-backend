@@ -2,10 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\reviews;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ReviewsController extends Controller
 {
+
+    protected $user;
+
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+        $this->user = $this->guard()->user();
+    }
     /**
      * Display a listing of the resource.
      *
@@ -13,18 +24,10 @@ class ReviewsController extends Controller
      */
     public function index()
     {
-        //
+        $reviews = $this->user->reviews()->get(['username','review','created_by']);
+        return response()->json($reviews->toArray());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -34,7 +37,35 @@ class ReviewsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(),[
+            'username'=>'required|string',
+            'review'=>'required|string',
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'status'=>false,
+                'error'=>$validator->errors()
+            ],400);
+        }
+
+        $review = new reviews();
+        $review->username= $request->username;
+        $review->review= $request->review;
+
+        if($this->user->reviews()->save($review)){
+            return response()->json([
+                'status'=>true,
+                'review'=>$review
+            ]);
+        }
+        else{
+            return response()->json([
+                'status'=>false,
+                'message'=>'Oops, the review could not be saved'
+            ]);
+        }
+
     }
 
     /**
@@ -43,20 +74,9 @@ class ReviewsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(reviews $review)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        return $review;
     }
 
     /**
@@ -66,9 +86,35 @@ class ReviewsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, reviews $review)
     {
-        //
+        $validator = Validator::make($request->all(),[
+            'username'=>'required|string',
+            'review'=>'required|string',
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'status'=>false,
+                'error'=>$validator->errors()
+            ],400);
+        }
+
+        $review->username= $request->username;
+        $review->review= $request->review;
+
+        if($this->user->reviews()->save($review)){
+            return response()->json([
+                'status'=>true,
+                'review'=>$review
+            ]);
+        }
+        else{
+            return response()->json([
+                'status'=>false,
+                'message'=>'Oops, the review could not be updated'
+            ]);
+        }
     }
 
     /**
@@ -77,8 +123,23 @@ class ReviewsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(reviews $review)
     {
-        //
+        if($review ->delete()){
+            return response()->json([
+                'status'=>true,
+                'review'=>$review
+            ]);
+        }
+        else{
+            return response()->json([
+                'status'=>false,
+                'message'=>'Oops, the review could not be deleted'
+            ]);
+        }
+    }
+
+    protected function guard(){
+        return Auth::guard();
     }
 }
