@@ -38,7 +38,7 @@ class AuthController extends Controller
 
         $this->guard()->factory()->setTTL($token_validity);
         if(!$token = $this->guard()->attempt($validator->validated())){
-            return response()->json(['error'=>'Unauthorized'],401);
+            return response()->json(['error'=>'Unauthorized, Invalid Email or Password'],401);
         }
 
         return $this->respondWithToken($token);
@@ -91,6 +91,31 @@ class AuthController extends Controller
         return $this->respondWithToken($this->guard()->refresh());
     }
 
+    //Edit Account
+    public function editUser(Request $request){
+
+        $currentuser = $this->guard()->user();
+
+        $validator = Validator::make($request->all(),[
+            'name'=>'required|string|between:2,100',
+            'email'=>'required|email|unique:users',
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                $validator->errors()
+            ],422);
+        }
+
+        $currentuser->update($validator->validated());
+
+        return response()->json([
+            'message'=>'User Account Updated successfully',
+            'user'=> $currentuser
+        ]);
+
+    }
+
     //Delete Account
     public function deleteUser(){
 
@@ -109,7 +134,8 @@ class AuthController extends Controller
         return response()->json([
             'token' =>$token,
             'token_type'=>'bearer',
-            'token_validity'=>$this->guard()->factory()->getTTL() *60
+            'token_validity'=>$this->guard()->factory()->getTTL() *60,
+            'user' => auth()->user()
         ]);
     }
 

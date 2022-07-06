@@ -18,20 +18,28 @@ use Spatie\FlareClient\Api;
 |
 */
 
-//Check All Accounts (Admin)
-Route::get('/accounts',[AccountsController::class,'accounts']);
-
-//Account Registration
-// Route::post('/register',[AccountsController::class,'register']);
-
-//Account Login
-// Route::post('/login',[AccountsController::class,'login']);
-
-//Edit Account
-Route::put('/edit/{id}',[AccountsController::class,'edit'])->middleware('checktoken');
-
-//Delete Account
-Route::delete('/deleteAcc/{id}',[AccountsController::class,'deleteAcc'])->middleware('checktoken');
+Route::group([
+    'middleware' => 'api',
+    'namespace' =>'App\Http\Controllers',
+    'prefix' => 'auth'
+],function($router){
+    //get all users
+    Route::get('users','AuthController@users');
+    //login
+    Route::post('login','AuthController@login');
+    //register
+    Route::post('register','AuthController@register');
+    //logout
+    Route::post('logout','AuthController@logout');
+    //edit acc
+    Route::put('editUser','AuthController@editUser');
+    //delete acc
+    Route::delete('deleteUser','AuthController@deleteUser');
+    //profile
+    Route::get('profile','AuthController@profile');
+    //refresh token
+    Route::post('refresh','AuthController@refresh');
+});
 
 //Show Listings
 Route::get('/listings',[ListingsController::class,'listings']);
@@ -48,35 +56,4 @@ Route::post('/checkListings',[ListingsController::class,'checkListings'])->middl
 //Delete Listing
 Route::delete('/listings/{id}',[ListingsController::class,'deleteListing']);
 
-// //Get All User
-// Route::get('users',[AuthController::class,'users']);
-
-//Register Route
-// Route::post('register',[AuthController::class,'register']);
-
-//Login Route
-// Route::post('login',[AuthController::class,'login']);
-
-Route::group([
-    'middleware' => 'api',
-    'namespace' =>'App\Http\Controllers',
-    'prefix' => 'auth'
-],function($router){
-    Route::post('login','AuthController@login');
-    Route::post('register','AuthController@register');
-    Route::post('logout','AuthController@logout');
-    Route::get('profile','AuthController@profile');
-    Route::post('refresh','AuthController@refresh');
-    Route::delete('deleteUser','AuthController@deleteUser');
-    Route::get('users','AuthController@users');
-});
-
-
-Route::group([
-    'middleware' => 'api',
-    'namespace' =>'App\Http\Controllers',
-    'prefix' => 'auth'
-],function($router){
-    Route::resource('todos','TodoController');
-});
 
