@@ -34,7 +34,7 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-    public function reviews(){
-        return $this->hasMany(reviews::class,'created_by','id');
+    public function listings(){
+        return $this->hasMany(Listing::class,'user_id','id');
     }
 }

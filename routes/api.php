@@ -20,40 +20,56 @@ use Spatie\FlareClient\Api;
 
 Route::group([
     'middleware' => 'api',
-    'namespace' =>'App\Http\Controllers',
+    'namespace' => 'App\Http\Controllers',
     'prefix' => 'auth'
-],function($router){
+], function ($router) {
     //get all users
-    Route::get('users','AuthController@users');
+    Route::get('users', 'AuthController@users');
     //login
-    Route::post('login','AuthController@login');
+    Route::post('login', 'AuthController@login');
     //register
-    Route::post('register','AuthController@register');
+    Route::post('register', 'AuthController@register');
     //logout
-    Route::post('logout','AuthController@logout');
+    Route::post('logout', 'AuthController@logout');
     //edit acc
-    Route::put('editUser','AuthController@editUser');
+    Route::put('editUser', 'AuthController@editUser');
     //delete acc
-    Route::delete('deleteUser','AuthController@deleteUser');
+    Route::delete('deleteUser', 'AuthController@deleteUser');
     //profile
-    Route::get('profile','AuthController@profile');
+    Route::get('profile', 'AuthController@profile');
     //refresh token
-    Route::post('refresh','AuthController@refresh');
+    Route::post('refresh', 'AuthController@refresh');
 });
 
+Route::group(
+    [
+        'middleware' => 'api',
+        'namespace' => 'App\Http\Controllers',
+    ],
+    function ($router) {
+        // Route::resource('listings', 'ListingsController');
+        // Route::get('/listings', 'ListingsController@lndex');
+        Route::get('/allListings', 'ListingsController@listings');
+        // Route::post('/listings', 'ListingsController@addListing');
+        // Route::put('/listings', 'ListingsController@updateListings');
+        // Route::post('/checkListings', 'ListingsController@checkListing');
+        // Route::delete('/listings/{id}', 'ListingsController@deleteListing');
+        Route::resource('listings','ListingsController');
+    }
+);
+
 //Show Listings
-Route::get('/listings',[ListingsController::class,'listings']);
+// Route::get('/listings', [ListingsController::class, 'listings']);
+
 
 //Add Listing
-Route::post('/listings',[ListingsController::class,'addListing'])->middleware('checktoken');
+// Route::post('/listings', [ListingsController::class, 'addListing'])->middleware('checktoken');
 
 //Update Listing
-Route::put('/listings/{id}',[ListingsController::class,'updateListing']);
+// Route::put('/listings/{id}', [ListingsController::class, 'updateListing']);
 
 //Check Listings
-Route::post('/checkListings',[ListingsController::class,'checkListings'])->middleware('checktoken');
+// Route::post('/checkListings', [ListingsController::class, 'checkListings'])->middleware('checktoken');
 
 //Delete Listing
-Route::delete('/listings/{id}',[ListingsController::class,'deleteListing']);
-
-
+// Route::delete('/listings/{id}', [ListingsController::class, 'deleteListing']);
