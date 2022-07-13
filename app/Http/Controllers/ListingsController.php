@@ -27,7 +27,7 @@ class ListingsController extends Controller
     //Get User Listings
     public function index()
     {
-        $listings = $this->user->listings()->get(['id', 'img_path', 'itemname', 'price', 'quantity', 'description', 'user_id']);
+        $listings = $this->user->listings()->get(['id', 'image', 'itemname', 'price', 'quantity', 'description', 'user_id']);
         return response()->json($listings->toArray());
     }
 
@@ -42,7 +42,7 @@ class ListingsController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'img_path' => 'required|image|mimes:jpg,png,bmp',
+            'image' => 'required|image|mimes:jpg,png,bmp',
             'itemname' => 'required|string',
             'price' => 'required|numeric',
             'quantity' => 'required|integer',
@@ -62,11 +62,11 @@ class ListingsController extends Controller
         //     $filepath = $request->file('file')->store('products');
         // }
 
-        $image_name = time() . '.' . $request->img_path->extension();
-        $request->img_path->move(public_path('/storage/products'), $image_name);
+        $image_name = time() . '.' . $request->image->extension();
+        $request->image->move(public_path('/storage/products'), $image_name);
 
         $listing = new Listing();
-        $listing->img_path = $image_name;
+        $listing->image = $image_name;
         $listing->itemname = $request->itemname;
         $listing->price = $request->price;
         $listing->quantity = $request->quantity;
