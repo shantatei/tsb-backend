@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('listings', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
+            $table->string('img_path');
             $table->string('itemname');
             $table->float('price');
             $table->integer('quantity');

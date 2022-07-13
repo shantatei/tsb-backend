@@ -47,13 +47,7 @@ Route::group(
         'namespace' => 'App\Http\Controllers',
     ],
     function ($router) {
-        // Route::resource('listings', 'ListingsController');
-        // Route::get('/listings', 'ListingsController@lndex');
         Route::get('/allListings', 'ListingsController@listings');
-        // Route::post('/listings', 'ListingsController@addListing');
-        // Route::put('/listings', 'ListingsController@updateListings');
-        // Route::post('/checkListings', 'ListingsController@checkListing');
-        // Route::delete('/listings/{id}', 'ListingsController@deleteListing');
         Route::resource('listings','ListingsController');
     }
 );

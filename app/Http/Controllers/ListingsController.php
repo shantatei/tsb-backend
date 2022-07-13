@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Listing;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use File;
 
 class ListingsController extends Controller
 {
@@ -26,7 +27,7 @@ class ListingsController extends Controller
     //Get User Listings
     public function index()
     {
-        $listings = $this->user->listings()->get(['id','itemname','price', 'quantity', 'description', 'user_id']);
+        $listings = $this->user->listings()->get(['id', 'img_path', 'itemname', 'price', 'quantity', 'description', 'user_id']);
         return response()->json($listings->toArray());
     }
 
@@ -39,19 +40,9 @@ class ListingsController extends Controller
     //Add new Listing
     public function store(Request $request)
     {
-        // $listing = new listing();
-
-        // $listing->user_id = $request->input('user_id');
-        // $listing->price = $request->input('price');
-        // $listing->quantity = $request->input('quantity');
-        // $listing->description = $request->input('description');
-
-
-        // $listing->save();
-
-        // return $listing;
 
         $validator = Validator::make($request->all(), [
+            'img_path' => 'required|image|mimes:jpg,png,bmp',
             'itemname' => 'required|string',
             'price' => 'required|numeric',
             'quantity' => 'required|integer',
@@ -65,7 +56,17 @@ class ListingsController extends Controller
             ], 400);
         }
 
+        // if ($request->file('file') == null) {
+        //     $filepath = "";
+        // } else {
+        //     $filepath = $request->file('file')->store('products');
+        // }
+
+        $image_name = time() . '.' . $request->img_path->extension();
+        $request->img_path->move(public_path('/storage/products'), $image_name);
+
         $listing = new Listing();
+        $listing->img_path = $image_name;
         $listing->itemname = $request->itemname;
         $listing->price = $request->price;
         $listing->quantity = $request->quantity;
@@ -86,26 +87,13 @@ class ListingsController extends Controller
         }
     }
 
-    // public function checkListings(Request $request)
-    // {
-    //     $listing = Listing::where('user_id', $request->input('user_id'))->get();
-    //     return $listing;
-    // }
 
     //Update Listing
     public function update(Request $request, Listing $listing)
     {
 
-        // $listing = listing::where('user_id', $request->input('user_id'));
-        // $listing = listing::find($request->id);
-        // $listing->price = $request->input('price');
-        // $listing->quantity = $request->input('quantity');
-        // $listing->description = $request->input('description');
-
-        // if ($listing->save()) {
-        //     return $listing;
-        // }
         $validator = Validator::make($request->all(), [
+            'img_path' => 'required|image|mimes:jpg,png,bmp',
             'itemname' => 'required|string',
             'price' => 'required|numeric',
             'quantity' => 'required|integer',
@@ -119,6 +107,10 @@ class ListingsController extends Controller
             ], 400);
         }
 
+        $image_name = time() . '.' . $request->img_path->extension();
+        $request->img_path->move(public_path('/storage/products'), $image_name);
+
+        $listing->img_path = $image_name;
         $listing->itemname = $request->itemname;
         $listing->price = $request->price;
         $listing->quantity = $request->quantity;
@@ -156,8 +148,7 @@ class ListingsController extends Controller
                     'listing' => $listing
                 ]
             );
-        }
-        else {
+        } else {
             return response()->json([
                 'status' => false,
                 'message' => 'Oops, the listing could not be deleted'
