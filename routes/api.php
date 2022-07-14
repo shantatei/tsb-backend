@@ -49,6 +49,7 @@ Route::group(
     function ($router) {
         Route::get('/allListings', 'ListingsController@listings');
         Route::get('/queryListings', 'ListingsController@list');
+        Route::put('/listings/{id}/update', 'ListingsController@updateListing');
         Route::resource('listings','ListingsController');
     }
 );

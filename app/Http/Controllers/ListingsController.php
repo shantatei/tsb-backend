@@ -15,7 +15,7 @@ class ListingsController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['listings','list']]);
+        $this->middleware('auth:api', ['except' => ['listings', 'list']]);
         $this->user = $this->guard()->user();
     }
     /**
@@ -51,7 +51,7 @@ class ListingsController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'status' => false,
+                'message' => 'Validation errors',
                 'errors' => $validator->errors(),
             ], 400);
         }
@@ -82,90 +82,113 @@ class ListingsController extends Controller
     }
 
     //search,sort and pagination
-    public function list(Request $request){
+    public function list(Request $request)
+    {
         $listing_query = Listing::with(['user']);
 
         //sort by keyboard(search)
-        if($request->keyword){
-            $listing_query->where('itemname','LIKE','%'.$request->keyword.'%');
+        if ($request->keyword) {
+            $listing_query->where('itemname', 'LIKE', '%' . $request->keyword . '%');
         }
 
         //sort by id
-        if($request->sortBy && in_array($request->sortBy,['id','created_at'])){
-            $sortBy=$request->sortBy;
-        }else{
-            $sortBy='id';
+        if ($request->sortBy && in_array($request->sortBy, ['id', 'created_at'])) {
+            $sortBy = $request->sortBy;
+        } else {
+            $sortBy = 'id';
         }
 
         //sort by asc/desc time
-        if($request->sortOrder && in_array($request->sortOrder,['asc','desc'])){
-            $sortOrder=$request->sortOrder;
-        }else{
-            $sortOrder='desc';
+        if ($request->sortOrder && in_array($request->sortOrder, ['asc', 'desc'])) {
+            $sortOrder = $request->sortOrder;
+        } else {
+            $sortOrder = 'desc';
         }
 
         //pagination per page (default is 5)
 
-        if($request->perPage){
-          $perPage=$request->perPage;
-        }else{
-            $perPage=5;
+        if ($request->perPage) {
+            $perPage = $request->perPage;
+        } else {
+            $perPage = 5;
         }
 
         //pagination
-        if($request->paginate){
+        if ($request->paginate) {
 
-            $listings = $listing_query->orderBY($sortBy,$sortOrder)->paginate($perPage);
-        }else{
-            $listings = $listing_query->orderBY($sortBy,$sortOrder)->get();
+            $listings = $listing_query->orderBY($sortBy, $sortOrder)->paginate($perPage);
+        } else {
+            $listings = $listing_query->orderBY($sortBy, $sortOrder)->get();
         }
 
         return response()->json([
             'message' => 'Listing successfully fetched',
-            'data'=>$listings
+            'data' => $listings
         ]);
     }
 
     //Update Listing
-    public function update(Request $request, Listing $listing)
+    public function updateListing($id, Request $request)
     {
 
-        $validator = Validator::make($request->all(), [
-            'img_path' => 'nullable',
-            'itemname' => 'required|string',
-            'price' => 'required|numeric',
-            'quantity' => 'required|integer',
-            'description' => 'required|string',
-        ]);
+        $listing = Listing::with(['user'])->where('id', $id)->first();
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors()
-            ], 400);
-        }
 
-        $image_name = time() . '.' . $request->img_path->extension();
-        $request->img_path->move(public_path('/storage/products'), $image_name);
+        //if the id of the listing is found
+        if ($listing) {
 
-        $listing->img_path = $image_name;
-        $listing->itemname = $request->itemname;
-        $listing->price = $request->price;
-        $listing->quantity = $request->quantity;
-        $listing->description = $request->description;
+            if ($listing->user_id == $this->user->id) {
 
-        if ($this->user->listings()->save($listing)) {
-            return response()->json(
-                [
-                    'status' => true,
-                    'listing' => $listing
-                ]
-            );
+                //request inputs
+                $validator = Validator::make($request->all(), [
+                    'image' => 'nullable|image|mimes:jpg,png,bmp,jpeg',
+                    'itemname' => 'required|string',
+                    'price' => 'required|numeric',
+                    'quantity' => 'required|integer',
+                    'description' => 'required|string',
+                ]);
+
+                //validate inputs
+                if ($validator->fails()) {
+                    return response()->json([
+                        'message' => 'Validation errors',
+                        'errors' => $validator->errors()
+                    ], 400);
+                }
+                //check if request has File
+                if ($request->hasFile('image')) {
+                    $image_name = time() . '.' . $request->image->extension();
+                    $request->image->move(public_path('/storage/products'), $image_name);
+                    $old_path = public_path().'storage/products/'.$listing->image;
+
+                    if (File::exists($old_path)) {
+                        File::delete($old_path);
+                    }
+                } else {
+                    $image_name=$listing->image;
+                }
+
+                $listing->update([
+                    'image' => $image_name,
+                    'itemname' => $request->itemname,
+                    'price' => $request->price,
+                    'quantity' => $request->quantity,
+                    'description' => $request->description
+                ]);
+
+                return response()->json([
+                    'message' => 'Listing successfully updated',
+                    'data' => $listing
+                ]);
+            } else {
+                return response()->json([
+                    'message' => 'Access denied',
+                ]);
+            }
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'Oops, the listing could not be updated'
-            ]);
+                'message' => 'No Listing Found',
+            ], 403);
         }
     }
 
