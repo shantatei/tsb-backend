@@ -48,6 +48,7 @@ Route::group(
     ],
     function ($router) {
         Route::get('/allListings', 'ListingsController@listings');
+        Route::get('/queryListings', 'ListingsController@list');
         Route::resource('listings','ListingsController');
     }
 );

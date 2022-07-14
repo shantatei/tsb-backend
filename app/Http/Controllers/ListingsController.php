@@ -15,7 +15,7 @@ class ListingsController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['listings']]);
+        $this->middleware('auth:api', ['except' => ['listings','list']]);
         $this->user = $this->guard()->user();
     }
     /**
@@ -42,7 +42,7 @@ class ListingsController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'image' => 'required|image|mimes:jpg,png,bmp',
+            'image' => 'required|image|mimes:jpg,png,bmp,jpeg',
             'itemname' => 'required|string',
             'price' => 'required|numeric',
             'quantity' => 'required|integer',
@@ -52,15 +52,9 @@ class ListingsController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 400);
         }
-
-        // if ($request->file('file') == null) {
-        //     $filepath = "";
-        // } else {
-        //     $filepath = $request->file('file')->store('products');
-        // }
 
         $image_name = time() . '.' . $request->image->extension();
         $request->image->move(public_path('/storage/products'), $image_name);
@@ -82,18 +76,62 @@ class ListingsController extends Controller
         } else {
             return response()->json([
                 'status' => false,
-                'message' => 'Oops, the listing could not be saved'
+                'message' => 'Oops, the listing could not be saved',
             ]);
         }
     }
 
+    //search,sort and pagination
+    public function list(Request $request){
+        $listing_query = Listing::with(['user']);
+
+        //sort by keyboard(search)
+        if($request->keyword){
+            $listing_query->where('itemname','LIKE','%'.$request->keyword.'%');
+        }
+
+        //sort by id
+        if($request->sortBy && in_array($request->sortBy,['id','created_at'])){
+            $sortBy=$request->sortBy;
+        }else{
+            $sortBy='id';
+        }
+
+        //sort by asc/desc time
+        if($request->sortOrder && in_array($request->sortOrder,['asc','desc'])){
+            $sortOrder=$request->sortOrder;
+        }else{
+            $sortOrder='desc';
+        }
+
+        //pagination per page (default is 5)
+
+        if($request->perPage){
+          $perPage=$request->perPage;
+        }else{
+            $perPage=5;
+        }
+
+        //pagination
+        if($request->paginate){
+
+            $listings = $listing_query->orderBY($sortBy,$sortOrder)->paginate($perPage);
+        }else{
+            $listings = $listing_query->orderBY($sortBy,$sortOrder)->get();
+        }
+
+        return response()->json([
+            'message' => 'Listing successfully fetched',
+            'data'=>$listings
+        ]);
+    }
 
     //Update Listing
     public function update(Request $request, Listing $listing)
     {
 
         $validator = Validator::make($request->all(), [
-            'img_path' => 'required|image|mimes:jpg,png,bmp',
+            'img_path' => 'nullable',
             'itemname' => 'required|string',
             'price' => 'required|numeric',
             'quantity' => 'required|integer',
@@ -158,7 +196,11 @@ class ListingsController extends Controller
 
     public function listings()
     {
-        return Listing::all();
+
+        $listing_query = Listing::with(['user']);
+        $listings = $listing_query->get();
+
+        return $listings;
     }
 
     protected function guard()
