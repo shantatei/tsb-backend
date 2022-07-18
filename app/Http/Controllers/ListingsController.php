@@ -159,13 +159,13 @@ class ListingsController extends Controller
                 if ($request->hasFile('image')) {
                     $image_name = time() . '.' . $request->image->extension();
                     $request->image->move(public_path('/storage/products'), $image_name);
-                    $old_path = public_path().'storage/products/'.$listing->image;
+                    $old_path = public_path() . '/storage/products/' . $listing->image;
 
                     if (File::exists($old_path)) {
                         File::delete($old_path);
                     }
                 } else {
-                    $image_name=$listing->image;
+                    $image_name = $listing->image;
                 }
 
                 $listing->update([
@@ -194,26 +194,38 @@ class ListingsController extends Controller
 
 
     //Delete Listing
-    public function destroy(Listing $listing)
+    public function deleteListing($id, Request $request)
     {
-        // $listing = Listing::find($request->id);
 
-        // if ($listing->delete()) {
-        //     return $listing;
-        // }
+        $listing = Listing::where('id', $id)->first();
 
-        if ($listing->delete()) {
-            return response()->json(
-                [
-                    'status' => true,
-                    'listing' => $listing
-                ]
-            );
+        if ($listing) {
+
+            if ($listing->user_id == $this->user->id) {
+
+                $old_path = public_path() . '/storage/products/' . $listing->image;
+
+                if (File::exists($old_path)) {
+                    File::delete($old_path);
+                }
+
+                $listing->delete();
+
+
+                return response()->json([
+                    'message' => 'Listing successfully deleted',
+                    'data' => $listing
+                ]);
+
+            } else {
+                return response()->json([
+                    'message' => 'Access denied',
+                ]);
+            }
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'Oops, the listing could not be deleted'
-            ]);
+                'message' => 'No Listing Found',
+            ], 403);
         }
     }
 

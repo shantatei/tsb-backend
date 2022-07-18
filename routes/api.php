@@ -50,22 +50,10 @@ Route::group(
         Route::get('/allListings', 'ListingsController@listings');
         Route::get('/queryListings', 'ListingsController@list');
         Route::put('/listings/{id}/update', 'ListingsController@updateListing');
+        Route::delete('/listings/{id}/delete', 'ListingsController@deleteListing');
         Route::resource('listings','ListingsController');
     }
 );
-
-//Show Listings
-// Route::get('/listings', [ListingsController::class, 'listings']);
-
-
-//Add Listing
-// Route::post('/listings', [ListingsController::class, 'addListing'])->middleware('checktoken');
-
-//Update Listing
-// Route::put('/listings/{id}', [ListingsController::class, 'updateListing']);
-
-//Check Listings
-// Route::post('/checkListings', [ListingsController::class, 'checkListings'])->middleware('checktoken');
 
 //Delete Listing
 // Route::delete('/listings/{id}', [ListingsController::class, 'deleteListing']);
