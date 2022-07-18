@@ -57,7 +57,7 @@ class ListingsController extends Controller
         }
 
         $image_name = time() . '.' . $request->image->extension();
-        $request->image->move(public_path('/storage/products'), $image_name);
+        $request->image->move(public_path('/storage/products_images'), $image_name);
 
         $listing = new Listing();
         $listing->image = $image_name;
@@ -158,8 +158,8 @@ class ListingsController extends Controller
                 //check if request has File
                 if ($request->hasFile('image')) {
                     $image_name = time() . '.' . $request->image->extension();
-                    $request->image->move(public_path('/storage/products'), $image_name);
-                    $old_path = public_path() . '/storage/products/' . $listing->image;
+                    $request->image->move(public_path('/storage/products_images'), $image_name);
+                    $old_path = public_path() . '/storage/products_images/' . $listing->image;
 
                     if (File::exists($old_path)) {
                         File::delete($old_path);
@@ -203,7 +203,7 @@ class ListingsController extends Controller
 
             if ($listing->user_id == $this->user->id) {
 
-                $old_path = public_path() . '/storage/products/' . $listing->image;
+                $old_path = public_path() . '/storage/products_images/' . $listing->image;
 
                 if (File::exists($old_path)) {
                     File::delete($old_path);

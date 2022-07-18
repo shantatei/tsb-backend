@@ -63,8 +63,8 @@ class AuthController extends Controller
 
         //check if request has File
         if ($request->hasFile('profile_photo')) {
-            $image_name = 'profile-image-' . time() . '.' . $request->profile_photo->extension();
-            $request->profile_photo->move(public_path('/storage/profile'), $image_name);
+            $image_name = time() . '.' . $request->profile_photo->extension();
+            $request->profile_photo->move(public_path('/storage/profile_images'), $image_name);
             $user = User::create(array_merge(
                 $validator->validated(),
                 ['profile_photo' => $image_name],
