@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-
+use File;
 
 class AuthController extends Controller
 {
@@ -117,16 +117,39 @@ class AuthController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|between:2,100',
+            'profile_photo' => 'image|mimes:jpg,png,bmp,jpeg',
             'email' => 'required|email|',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                $validator->errors()
-            ], 422);
+                'message' => 'Validation errors',
+                'error' => $validator->errors()
+            ], 400);
         }
 
-        $currentuser->update($validator->validated());
+        //check if request has File
+        if ($request->hasFile('profile_photo')) {
+            if ($currentuser->profile_photo) {
+                $old_path = public_path() . '/storage/profile_images/' . $currentuser->profile_photo;
+                if (File::exists($old_path)) {
+                    File::delete($old_path);
+                }
+            }
+            $image_name = time() . '.' . $request->profile_photo->extension();
+            $request->profile_photo->move(public_path('/storage/profile_images'), $image_name);
+        } else {
+            $image_name = $currentuser->profile_photo;
+        }
+
+        $currentuser->update([
+            'profile_photo' => $image_name,
+            'name' => $request->name,
+            'email' => $request->email,
+        ]);
+
+        
+        // $currentuser->update($validator->validated());
 
         return response()->json([
             'message' => 'User Account Updated successfully',

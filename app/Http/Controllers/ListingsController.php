@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Listing;
+use App\Models\ProductLike;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use File;
@@ -15,7 +16,7 @@ class ListingsController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['listings', 'list']]);
+        $this->middleware('auth:api', ['except' => ['listings', 'list', 'getListingById']]);
         $this->user = $this->guard()->user();
     }
     /**
@@ -216,7 +217,6 @@ class ListingsController extends Controller
                     'message' => 'Listing successfully deleted',
                     'data' => $listing
                 ]);
-
             } else {
                 return response()->json([
                     'message' => 'Access denied',
@@ -232,10 +232,62 @@ class ListingsController extends Controller
     public function listings()
     {
 
-        $listing_query = Listing::with(['user']);
+        $listing_query = Listing::withCount(['likes'])->with(['user']);
         $listings = $listing_query->get();
 
+
+
         return $listings;
+    }
+
+    public function getListingById($id)
+    {
+
+        $listing = Listing::with(['user'])->where('id', $id)->first();
+
+        if ($listing) {
+            return $listing;
+        } else {
+            return response()->json([
+                'message' => 'No Listing Found',
+            ], 403);
+        }
+    }
+
+    public function toggle_like($id, Request $request)
+    {
+        $listing = Listing::where('id', $id)->first();
+
+        if ($listing) {
+
+            $user = $this->user;
+            $product_like = ProductLike::where('listing_id', $listing->id)
+                ->where('user_id', $user->id)->first();
+            if ($product_like) {
+                $product_like->delete();
+
+                return response()->json([
+                    'message' => 'Like successfully removed',
+                ], 200);
+
+            } else {
+
+                ProductLike::create([
+                    'listing_id' => $listing->id,
+                    'user_id' => $user->id
+                ]);
+
+                return response()->json([
+                    'message' => 'Product successfully liked',
+                ], 200);
+
+
+            }
+        } else {
+            return response()->json([
+                'message' => 'No Listing Found',
+            ], 400);
+        }
     }
 
     protected function guard()

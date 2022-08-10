@@ -49,11 +49,11 @@ Route::group(
     function ($router) {
         Route::get('/allListings', 'ListingsController@listings');
         Route::get('/queryListings', 'ListingsController@list');
+        Route::get('/listingbyid/{id}', 'ListingsController@getListingById');
         Route::put('/listings/{id}/update', 'ListingsController@updateListing');
         Route::delete('/listings/{id}/delete', 'ListingsController@deleteListing');
         Route::resource('listings','ListingsController');
+        Route::post('/listings/{id}/toggle-like', 'ListingsController@toggle_like');
     }
 );
 
-//Delete Listing
-// Route::delete('/listings/{id}', [ListingsController::class, 'deleteListing']);
