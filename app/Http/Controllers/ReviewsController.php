@@ -53,8 +53,7 @@ class ReviewsController extends Controller
             $review = new reviews();
             $review->review = $request->review;
             $review->rating = $request->rating;
-            $review->reviewedby_id = $user->id;
-            $review->user_id = $id;
+            $review->reviewed_id = $id;
 
             if ($this->user->reviews()->save($review)) {
                 return response()->json([
