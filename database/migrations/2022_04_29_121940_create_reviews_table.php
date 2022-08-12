@@ -13,13 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('user_reviews', function (Blueprint $table) {
+        Schema::create('reviews', function (Blueprint $table) {
             $table->id();
-            $table->string('username' ,64);
             $table->text('review');
-            $table->unsignedBigInteger('created_by');
+            $table->integer('rating');
+            $table->unsignedBigInteger('reviewedby_id');
+            $table->unsignedBigInteger('user_id');
 
-            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('reviewedby_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

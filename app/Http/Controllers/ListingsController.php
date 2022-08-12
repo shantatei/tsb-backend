@@ -16,7 +16,7 @@ class ListingsController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['listings', 'list', 'getListingById']]);
+        $this->middleware('auth:api', ['except' => ['listings', 'list', 'getListingById', 'getFavourites']]);
         $this->user = $this->guard()->user();
     }
     /**
@@ -85,7 +85,7 @@ class ListingsController extends Controller
     //search,sort and pagination
     public function list(Request $request)
     {
-        $listing_query = Listing::with(['user']);
+        $listing_query = Listing::withCount(['likes'])->with(['user']);
 
         //sort by keyboard(search)
         if ($request->keyword) {
@@ -243,13 +243,13 @@ class ListingsController extends Controller
     public function getListingById($id)
     {
 
-        $listing = Listing::with(['user'])->where('id', $id)->first();
+        $listing = Listing::with(['user'])->where('user_id', $id)->get();
 
         if ($listing) {
             return $listing;
         } else {
             return response()->json([
-                'message' => 'No Listing Found',
+                'message' => 'No Listing Found ',
             ], 403);
         }
     }
@@ -269,7 +269,6 @@ class ListingsController extends Controller
                 return response()->json([
                     'message' => 'Like successfully removed',
                 ], 200);
-
             } else {
 
                 ProductLike::create([
@@ -280,8 +279,6 @@ class ListingsController extends Controller
                 return response()->json([
                     'message' => 'Product successfully liked',
                 ], 200);
-
-
             }
         } else {
             return response()->json([
@@ -289,6 +286,12 @@ class ListingsController extends Controller
             ], 400);
         }
     }
+
+    public function getFavourites()
+    {
+        return  ProductLike::all();
+    }
+
 
     protected function guard()
     {

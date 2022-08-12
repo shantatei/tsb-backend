@@ -1,8 +1,5 @@
 <?php
 
-use App\Http\Controllers\ListingsController;
-use App\Http\Controllers\AccountsController;
-use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Spatie\FlareClient\Api;
@@ -18,28 +15,31 @@ use Spatie\FlareClient\Api;
 |
 */
 
-Route::group([
-    'middleware' => 'api',
-    'namespace' => 'App\Http\Controllers',
-    'prefix' => 'auth'
-], function ($router) {
-    //get all users
-    Route::get('users', 'AuthController@users');
-    //login
-    Route::post('login', 'AuthController@login');
-    //register
-    Route::post('register', 'AuthController@register');
-    //logout
-    Route::post('logout', 'AuthController@logout');
-    //edit acc
-    Route::put('editUser', 'AuthController@editUser');
-    //delete acc
-    Route::delete('deleteUser', 'AuthController@deleteUser');
-    //profile
-    Route::get('profile', 'AuthController@profile');
-    //refresh token
-    Route::post('refresh', 'AuthController@refresh');
-});
+Route::group(
+    [
+        'middleware' => 'api',
+        'namespace' => 'App\Http\Controllers',
+        'prefix' => 'auth'
+    ],
+    function ($router) {
+        //get all users
+        Route::get('users', 'AuthController@users');
+        //login
+        Route::post('login', 'AuthController@login');
+        //register
+        Route::post('register', 'AuthController@register');
+        //logout
+        Route::post('logout', 'AuthController@logout');
+        //edit acc
+        Route::put('editUser', 'AuthController@editUser');
+        //delete acc
+        Route::delete('deleteUser', 'AuthController@deleteUser');
+        //profile
+        Route::get('profile', 'AuthController@profile');
+        //refresh token
+        Route::post('refresh', 'AuthController@refresh');
+    }
+);
 
 Route::group(
     [
@@ -52,8 +52,20 @@ Route::group(
         Route::get('/listingbyid/{id}', 'ListingsController@getListingById');
         Route::put('/listings/{id}/update', 'ListingsController@updateListing');
         Route::delete('/listings/{id}/delete', 'ListingsController@deleteListing');
-        Route::resource('listings','ListingsController');
+        Route::resource('listings', 'ListingsController');
         Route::post('/listings/{id}/toggle-like', 'ListingsController@toggle_like');
+        Route::get('/favourites', 'ListingsController@getFavourites');
     }
 );
 
+Route::group(
+    [
+        'middleware' => 'api',
+        'namespace' => 'App\Http\Controllers',
+    ],
+    function ($router) {
+        Route::post('/review/{id}', 'ReviewsController@postReview');
+        Route::get('/review', 'ReviewsController@getReview');
+        Route::delete('/review/{id}/delete', 'ReviewsController@deleteReview');
+    }
+);
