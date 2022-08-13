@@ -15,20 +15,28 @@ class ReviewsController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['getReview']]);
+        $this->middleware('auth:api', ['except' => ['getReview', 'getReviewById']]);
         $this->user = $this->guard()->user();
     }
 
-    public function index()
+    public function getReviewById($id)
     {
-        $reviews = $this->user->reviews()->get(['username', 'review', 'created_by']);
-        return response()->json($reviews->toArray());
+        $review = reviews::with(['user'])->where('reviewed_id', $id)->get();
+
+        if ($review) {
+            return $review;
+        } else {
+            return response()->json([
+                'message' => 'No Reviews Found ',
+            ], 403);
+        }
     }
 
     public function getReview()
     {
         return  reviews::all();
     }
+
 
     public function postReview($id, Request $request)
     {
@@ -38,6 +46,14 @@ class ReviewsController extends Controller
         if ($usercheck) {
             $user = $this->user;
 
+            // $checkreview = reviews::where('reviewed_id', $id)
+            //     ->where('user_id', $user->id)->first();
+
+            // if ($checkreview) {
+            //     return response()->json([
+            //         'message' => 'You have already reviewed this user',
+            //     ], 200);
+            // } else {
             $validator = Validator::make($request->all(), [
                 'review' => 'required|string',
                 'rating' => 'required|integer'
@@ -73,33 +89,45 @@ class ReviewsController extends Controller
         }
     }
 
-    public function update(Request $request, reviews $review)
+    public function updateReview($id, Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'username' => 'required|string',
-            'review' => 'required|string',
-        ]);
+        $review  = reviews::with(['user'])->where('id', $id)->first();
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'error' => $validator->errors()
-            ], 400);
-        }
+        if ($review) {
 
-        $review->username = $request->username;
-        $review->review = $request->review;
+            if ($review->user_id == $this->user->id) {
+                $validator = Validator::make($request->all(), [
+                    'review' => 'required|string',
+                    'rating' => 'required|integer'
+                ]);
 
-        if ($this->user->reviews()->save($review)) {
-            return response()->json([
-                'status' => true,
-                'review' => $review
-            ]);
+                if ($validator->fails()) {
+                    return response()->json([
+                        'status' => false,
+                        'error' => $validator->errors()
+                    ], 400);
+                }
+
+                $review->update([
+                    'review' => $request->review,
+                    'rating' => $request->rating,
+
+                ]);
+
+                return response()->json([
+                    'message' => 'Review successfully updated',
+                    'data' => $review
+                ]);
+            } else {
+                return response()->json([
+                    'message' => 'Access denied',
+                ]);
+            }
         } else {
+
             return response()->json([
-                'status' => false,
-                'message' => 'Oops, the review could not be updated'
-            ]);
+                'message' => 'No Review Found',
+            ], 403);
         }
     }
 
@@ -111,8 +139,7 @@ class ReviewsController extends Controller
             if ($review->user_id == $this->user->id) {
                 $review->delete();
                 return response()->json([
-                    'status' => true,
-                    'review' => $review
+                    'message' => 'Review Deleted'
                 ]);
             } else {
                 return response()->json([

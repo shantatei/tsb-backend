@@ -13,7 +13,7 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'users']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'users','getUserById']]);
     }
 
     //GET ALL USERS
@@ -148,7 +148,7 @@ class AuthController extends Controller
             'email' => $request->email,
         ]);
 
-        
+
         // $currentuser->update($validator->validated());
 
         return response()->json([
@@ -179,6 +179,18 @@ class AuthController extends Controller
             'token_validity' => $this->guard()->factory()->getTTL() * 60,
             'user' => auth()->user()
         ]);
+    }
+
+    public function getUserById($id){
+        $user = User::where('id', $id)->get();
+
+        if ($user) {
+            return $user;
+        } else {
+            return response()->json([
+                'message' => 'No User is matched to this ID ',
+            ], 403);
+        }
     }
 
     protected function guard()

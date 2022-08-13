@@ -38,6 +38,8 @@ Route::group(
         Route::get('profile', 'AuthController@profile');
         //refresh token
         Route::post('refresh', 'AuthController@refresh');
+        //profileById
+        Route::get('profile/{id}', 'AuthController@getUserById');
     }
 );
 
@@ -67,5 +69,7 @@ Route::group(
         Route::post('/review/{id}', 'ReviewsController@postReview');
         Route::get('/review', 'ReviewsController@getReview');
         Route::delete('/review/{id}/delete', 'ReviewsController@deleteReview');
+        Route::get('/review/{id}', 'ReviewsController@getReviewById');
+        Route::put('/review/{id}/update', 'ReviewsController@updateReview');
     }
 );
