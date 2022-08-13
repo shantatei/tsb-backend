@@ -108,15 +108,12 @@ class ReviewsController extends Controller
                     ], 400);
                 }
 
-                $review->update([
-                    'review' => $request->review,
-                    'rating' => $request->rating,
-
-                ]);
+                $review->update($validator->validated());
 
                 return response()->json([
                     'message' => 'Review successfully updated',
-                    'data' => $review
+                    'data' => $review,
+                    'rating' => $request->rating
                 ]);
             } else {
                 return response()->json([

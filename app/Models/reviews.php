@@ -13,6 +13,7 @@ class Reviews extends Model
         'review',
         'user_id',
         'reviewed_id',
+        'rating'
     ];
 
     public function user()
