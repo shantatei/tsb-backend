@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,14 +14,10 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'users','getUserById']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register','getUserById']]);
     }
 
-    //GET ALL USERS
-    public function users()
-    {
-        return User::all();
-    }
+
 
     //LOGIN FUNCTION
     public function login(Request $request)
@@ -70,11 +67,15 @@ class AuthController extends Controller
                 ['profile_photo' => $image_name],
                 ['password' => bcrypt($request->password)]
             ));
+            $role = Role::where('role_name', 'Customer')->first();
+            $user->roles()->attach($role->id);
         } else {
             $user = User::create(array_merge(
                 $validator->validated(),
                 ['password' => bcrypt($request->password)]
             ));
+            $role = Role::where('role_name', 'Customer')->first();
+            $user->roles()->attach($role->id);
         }
 
 
@@ -169,6 +170,8 @@ class AuthController extends Controller
             'user' => $currentuser
         ]);
     }
+
+
 
     //JWT RESPOND WITH TOKEN
     protected function respondWithToken($token)

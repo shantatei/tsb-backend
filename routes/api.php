@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Spatie\FlareClient\Api;
@@ -22,8 +23,6 @@ Route::group(
         'prefix' => 'auth'
     ],
     function ($router) {
-        //get all users
-        Route::get('users', 'AuthController@users');
         //login
         Route::post('login', 'AuthController@login');
         //register
@@ -71,5 +70,19 @@ Route::group(
         Route::delete('/review/{id}/delete', 'ReviewsController@deleteReview');
         Route::get('/review/{id}', 'ReviewsController@getReviewById');
         Route::put('/review/{id}/update', 'ReviewsController@updateReview');
+    }
+);
+
+//Admin Routes
+Route::group(
+    [
+        'middleware' => ['api','admin'],
+        'namespace' => 'App\Http\Controllers',
+        'prefix' => 'admin'
+    ],
+    function ($router) {
+        //get all users
+        Route::get('users', 'AdminController@users');
+        Route::post('assignRole', 'AdminController@assignRole');
     }
 );
