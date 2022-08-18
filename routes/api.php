@@ -84,5 +84,7 @@ Route::group(
         //get all users
         Route::get('users', 'AdminController@users');
         Route::post('assignRole', 'AdminController@assignRole');
+        Route::post('detachRole', 'AdminController@detachRole');
+        Route::post('createRole', 'AdminController@createRole');
     }
 );

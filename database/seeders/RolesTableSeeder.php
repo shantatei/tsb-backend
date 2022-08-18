@@ -22,7 +22,7 @@ class RolesTableSeeder extends Seeder
 
         DB::table('roles')->insert([
             'role_name' => 'Customer',
-            'role_description' => 'Default Role Given',
+            'role_description' => 'Default Role',
         ]);
 
         DB::table('roles')->insert([

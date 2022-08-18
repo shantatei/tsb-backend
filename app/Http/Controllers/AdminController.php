@@ -20,7 +20,7 @@ class AdminController extends Controller
     //GET ALL USERS
     public function users()
     {
-        return User::all();
+        return User::with('roles')->get();
     }
 
     public function createRole(Request $request)
@@ -50,6 +50,22 @@ class AdminController extends Controller
             'role' => $role
         ]);
     }
+
+    public function detachRole(Request $request)
+    {
+        // responsible for assigning a given role to a user.
+        // It needs a role ID and a user object
+        $user = User::whereEmail($request->input('email'))->first();
+        $role = Role::where('role_name', $request->input('role'))->first();
+        $user->roles()->detach($role->id);
+
+        return response()->json([
+            'message' => "Role successfully detached",
+            'role' => $role
+        ]);
+    }
+
+
 
     protected function guard()
     {

@@ -14,7 +14,7 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register','getUserById']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'getUserById']]);
     }
 
 
@@ -99,8 +99,9 @@ class AuthController extends Controller
     //GET USER PROFILE
     public function profile()
     {
-
-        return response()->json($this->guard()->user());
+        $user =  $this->guard()->user();
+        $user->roles;
+        return response()->json($user);
     }
 
     //REFRESH TOKEN
@@ -184,7 +185,8 @@ class AuthController extends Controller
         ]);
     }
 
-    public function getUserById($id){
+    public function getUserById($id)
+    {
         $user = User::where('id', $id)->get();
 
         if ($user) {
