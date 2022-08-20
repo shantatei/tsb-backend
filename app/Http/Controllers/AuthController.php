@@ -151,7 +151,7 @@ class AuthController extends Controller
         ]);
 
 
-        // $currentuser->update($validator->validated());
+        $currentuser->roles;
 
         return response()->json([
             'message' => 'User Account Updated successfully',

@@ -26,4 +26,5 @@ class Listing extends Model
     public function likes(){
         return $this->hasMany(ProductLike::class);
     }
+
 }

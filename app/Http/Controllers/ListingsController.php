@@ -232,8 +232,15 @@ class ListingsController extends Controller
     public function listings()
     {
 
-        $listing_query = Listing::withCount(['likes'])->with(['user']);
-        $listings = $listing_query->get();
+        $listings = Listing::withCount(['likes'])->with(['user'])->get();
+        $users = $listings->pluck('user');
+        foreach($users as $user)
+        $user->roles;
+
+
+
+
+
 
 
 
