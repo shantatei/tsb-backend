@@ -17,6 +17,11 @@ class AdminController extends Controller
         $this->user = $this->guard()->user();
     }
 
+    public function roles()
+    {
+        return Role::all();
+    }
+
     //GET ALL USERS
     public function users()
     {
@@ -28,13 +33,29 @@ class AdminController extends Controller
 
         $role = new Role();
         $role->role_name = $request->input('role_name'); // name of the new role
-        $role->role_description = $request->input('role_descripition'); // name of the new role
+        $role->role_description = $request->input('role_description'); // name of the new role
         $role->save();
 
         return response()->json([
             'message' => 'Role successfully created',
             'role' => $role
         ]);
+    }
+    public function deleteRole($id)
+    {
+        $role = Role::where('id', $id)->first();
+        if ($role) {
+            $role->delete();
+
+            return response()->json([
+                'message' => 'Role successfully deleted',
+                'data' => $role
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'No Role Found',
+            ], 403);
+        }
     }
 
     public function assignRole(Request $request)
@@ -43,12 +64,20 @@ class AdminController extends Controller
         // It needs a role ID and a user object
         $user = User::whereEmail($request->input('email'))->first();
         $role = Role::where('role_name', $request->input('role'))->first();
-        $user->roles()->attach($role->id);
 
-        return response()->json([
-            'message' => "Role successfully assigned",
-            'role' => $role
-        ]);
+
+        if ($user->roles()->where('id', $role->id)->exists()) {
+            return response()->json([
+                'message' => "Role has already been assigned to this user",
+            ]);
+        } else {
+            $user->roles()->attach($role->id);
+            return response()->json([
+                'message' => "Role successfully assigned",
+                'role' => $role,
+                'user' => $user
+            ]);
+        }
     }
 
     public function detachRole(Request $request)
@@ -71,5 +100,4 @@ class AdminController extends Controller
     {
         return Auth::guard();
     }
-
 }

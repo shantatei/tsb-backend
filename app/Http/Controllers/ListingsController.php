@@ -236,14 +236,7 @@ class ListingsController extends Controller
         $users = $listings->pluck('user');
         foreach($users as $user)
         $user->roles;
-
-
-
-
-
-
-
-
+        
         return $listings;
     }
 

@@ -83,8 +83,10 @@ Route::group(
     function ($router) {
         //get all users
         Route::get('users', 'AdminController@users');
+        Route::get('roles', 'AdminController@roles');
         Route::post('assignRole', 'AdminController@assignRole');
         Route::post('detachRole', 'AdminController@detachRole');
         Route::post('createRole', 'AdminController@createRole');
+        Route::delete('deleteRole/{id}', 'AdminController@deleteRole');
     }
 );
