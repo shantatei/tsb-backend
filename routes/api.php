@@ -70,13 +70,14 @@ Route::group(
         Route::delete('/review/{id}/delete', 'ReviewsController@deleteReview');
         Route::get('/review/{id}', 'ReviewsController@getReviewById');
         Route::put('/review/{id}/update', 'ReviewsController@updateReview');
+        Route::post('/orders/save', 'OrdersController@saveOrder');
     }
 );
 
 //Admin Routes
 Route::group(
     [
-        'middleware' => ['api','admin'],
+        'middleware' => ['api'],
         'namespace' => 'App\Http\Controllers',
         'prefix' => 'admin'
     ],
@@ -84,6 +85,7 @@ Route::group(
         //get all users
         Route::get('users', 'AdminController@users');
         Route::get('roles', 'AdminController@roles');
+        Route::get('orders', 'AdminController@orders');
         Route::post('assignRole', 'AdminController@assignRole');
         Route::post('detachRole', 'AdminController@detachRole');
         Route::post('createRole', 'AdminController@createRole');
