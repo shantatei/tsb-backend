@@ -161,16 +161,34 @@ class AuthController extends Controller
     }
 
     //Delete Account
-    public function deleteUser()
+    public function deleteUser(Request $request)
     {
 
-        $currentuser = $this->guard()->user();
-        $this->guard()->user()->delete();
+        $user = $this->guard()->user();
 
-        return response()->json([
-            'message' => 'User Account Deleted successfully',
-            'user' => $currentuser
+        $validator = Validator::make($request->all(), [
+            'password' => 'required',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation errors',
+                'error' => $validator->errors()
+            ], 400);
+        }
+
+        if (Hash::check($request->password, $user->password)) {
+
+            $user->delete();
+            return response()->json([
+                'message' => 'User Account Deleted successfully',
+                'user' => $user
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Current password does not match',
+            ], 400);
+        }
     }
 
 
