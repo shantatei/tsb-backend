@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use File;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -195,6 +196,38 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'No User is matched to this ID ',
             ], 403);
+        }
+    }
+
+    public function change_password(Request $request)
+    {
+
+        $user =  $this->guard()->user();
+
+        $validator = Validator::make($request->all(), [
+            'old_password' => 'required',
+            'password' => 'required|min:6',
+            'confirm_password' => 'required|same:password'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation errors',
+                'error' => $validator->errors()
+            ], 400);
+        }
+
+        if (Hash::check($request->old_password, $user->password)) {
+            $user->update([
+                'password' => bcrypt($request->password)
+            ]);
+            return response()->json([
+                'message' => 'Password successfully updated',
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Old password does not match',
+            ], 400);
         }
     }
 

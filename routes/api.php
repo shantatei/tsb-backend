@@ -39,6 +39,8 @@ Route::group(
         Route::post('refresh', 'AuthController@refresh');
         //profileById
         Route::get('profile/{id}', 'AuthController@getUserById');
+        //change password
+        Route::post('change-password', 'AuthController@change_password');
     }
 );
 
@@ -77,7 +79,7 @@ Route::group(
 //Admin Routes
 Route::group(
     [
-        'middleware' => ['api','admin'],
+        'middleware' => ['api', 'admin'],
         'namespace' => 'App\Http\Controllers',
         'prefix' => 'admin'
     ],
