@@ -77,7 +77,7 @@ Route::group(
 //Admin Routes
 Route::group(
     [
-        'middleware' => ['api'],
+        'middleware' => ['api','admin'],
         'namespace' => 'App\Http\Controllers',
         'prefix' => 'admin'
     ],

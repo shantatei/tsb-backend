@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Orders;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -97,12 +97,8 @@ class AdminController extends Controller
 
     public function orders()
     {
-        $orders = Orders::with('products')->get();
+        return Order::all();
 
-        return response()->json([
-            'message' => 'Orders has been retrieved',
-            'order' => $orders
-        ]);
     }
 
 

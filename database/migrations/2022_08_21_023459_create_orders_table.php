@@ -16,12 +16,14 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            
+
             $table->string("billing_firstname");
             $table->string("billing_lastname");
             $table->string("billing_email");
             $table->string("billing_address");
             $table->string("billing_postalcode");
+            $table->integer("total_quantity");
+            $table->float("total_price");
 
             $table->string("payment_gateway")->default('stripe');
 

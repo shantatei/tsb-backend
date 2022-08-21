@@ -27,5 +27,7 @@ class Listing extends Model
         return $this->hasMany(ProductLike::class);
     }
 
+    
+
 
 }

@@ -30,6 +30,8 @@ class OrdersController extends Controller
             'billing_email' => 'required|string',
             'billing_address' => 'required|string',
             'billing_postalcode' => 'required|string',
+            'total_price' => 'required|numeric',
+            'total_quantity' => 'required|integer',
         ]);
 
         if ($validator->fails()) {
@@ -45,6 +47,8 @@ class OrdersController extends Controller
         $order->billing_email = $request->billing_email;
         $order->billing_address = $request->billing_address;
         $order->billing_postalcode = $request->billing_postalcode;
+        $order->total_price= $request->total_price;
+        $order->total_quantity = $request->total_quantity;
 
         if ($this->user->orders()->save($order)) {
             //insert into order_product table
